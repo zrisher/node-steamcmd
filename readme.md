@@ -50,7 +50,11 @@ Runs `download([opts])`, waits briefly to avoid `EBUSY`, then runs
 ### steamcmd.getAppInfo(appid[, opts])
 Asks SteamCMD to get the latest app info for the given app.
 
-### steamcmd.updateApp(appid[, opts])
+### steamcmd.getAppVersionRemote(appid[, branch [, opts]])
+Returns an object identifying the most recent available build for an app.
+Searches for a particular branch if provided, otherwise defaults to 'public'.
+
+### steamcmd.updateApp(appid, installDir[, opts])
 Returns `true` if the update succeeded or `false` if it wasn't required.
 If SteamCMD's stdout isn't recognized, throws it as an error.
 
