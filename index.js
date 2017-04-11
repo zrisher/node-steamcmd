@@ -186,6 +186,28 @@ var getAppInfo = function (appID, opts) {
   return promiseToRetry(getAppInfoOnce, [appID, opts], opts)
 }
 
+var getAppVersionInstalled = function (appId, opts) {
+  opts = _.defaults(opts, defaultOptions)
+  var manifestPath = path.join(
+    opts.appDir, 'steamapps', 'appmanifest_' + appId + '.acf'
+  )
+  return new Promise(function (resolve, reject) {
+    fs.readFile(manifestPath, (err, data) => {
+      if (err) {
+        reject(err)
+      }
+      var localState = vdf.parse(data.toString()).AppState
+      resolve({
+        buildId: localState.buildid,
+        branch: localState.UserConfig ?
+          localState.UserConfig.betakey : undefined,
+        updatedAt: localState.LastUpdated ?
+          new Date(parseInt(localState.LastUpdated, 10) * 1000) : undefined
+      })
+    })
+  })
+}
+
 var getAppVersionRemote = function (appId, branchId, opts) {
   return getAppInfo(appId, opts).then(function (appInfo) {
     branchId = branchId || 'public'
@@ -243,5 +265,6 @@ module.exports.download = downloadIfNeeded
 module.exports.touch = touch
 module.exports.prep = prep
 module.exports.getAppInfo = getAppInfo
+module.exports.getAppVersionInstalled = getAppVersionInstalled
 module.exports.getAppVersionRemote = getAppVersionRemote
 module.exports.updateApp = updateApp

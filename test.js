@@ -117,3 +117,36 @@ test('updateApp on already up-to-date app returns false', async t => {
   await steamcmd.updateApp(appId, opts)
   t.false(await steamcmd.updateApp(appId, opts))
 })
+
+test('getAppVersionInstalled', async t => {
+  var {binDirParent, opts} = t.context
+  const appId = 1007
+  await steamcmd.prep(opts)
+
+  // Main dir
+  await steamcmd.updateApp(appId, opts)
+  let version = await steamcmd.getAppVersionInstalled(appId, opts)
+  t.regex(version.buildId, /\d+/)
+  t.falsy(version.branch)
+  t.true(version.updatedAt && new Date(0) < version.updatedAt)
+
+  // Other dir
+  opts.appDir = path.join(path.join(binDirParent, 'some_dir'), 'app')
+  await steamcmd.updateApp(appId, opts)
+  version = await steamcmd.getAppVersionInstalled(appId, opts)
+  t.regex(version.buildId, /\d+/)
+  t.falsy(version.branch)
+  t.true(version.updatedAt && new Date(0) < version.updatedAt)
+
+  // @todo enable installing branch so can test that
+  /*
+  // different branch & dir
+  installDir = path.join(binDir, 'app')
+  branch = '1.21.3.1'
+  await steamcmd.updateApp(appId, branch, installDir, opts)
+  version = await steamcmd.getAppVersionRemote(appId, installDir, opts)
+  t.is(version.buildId, '611429')
+  t.is(version.branch, branch)
+  t.true(version.updatedAt && new Date(0) < version.updatedAt)
+  */
+})
