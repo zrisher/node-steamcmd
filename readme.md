@@ -50,15 +50,25 @@ Runs `download([opts])`, waits briefly to avoid `EBUSY`, then runs
 ### steamcmd.getAppInfo(appid[, opts])
 Asks SteamCMD to get the latest app info for the given app.
 
-### steamcmd.updateApp(appid, installDir[, opts])
-Asks SteamCMD to install/update the given app to the given **absolute**
-directory. Throws a `TypeError` if `installDir` is not absolute.
+### steamcmd.updateApp(appid[, opts])
 Returns `true` if the update succeeded or `false` if it wasn't required.
 If SteamCMD's stdout isn't recognized, throws it as an error.
 
 ## Configuration
 
 All functions take an optional options parameter.
+
+#### appDir
+
+type: string
+default: `path.join(__dirname, 'steamcmd_bin')`
+
+The absolute path to directory where steam can manage apps. This can be the
+same directory as binDir. Installed apps can be found in
+`appDir/steamapps/common/app_full_name`.
+
+For example, on Windows app `1007` installs to
+`appDir/steamapps/common/Steamworks SDK Redist`.
 
 #### asyncDelay
 

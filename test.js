@@ -18,7 +18,8 @@ test.beforeEach(t => {
   const binDirParent = tempfile('/')
   mkdirp.sync(binDirParent)
   const binDir = path.join(binDirParent, 'steamcmd_bin')
-  const opts = {binDir}
+  const appDir = binDir
+  const opts = {appDir, binDir}
   t.context = {binDirParent, binDir, opts}
 })
 
@@ -70,34 +71,34 @@ test('repeated calls to getAppInfo', async t => {
 
 test('updateApp with a relative path', async t => {
   var {opts} = t.context
+  opts.appDir = './relative/path'
   await steamcmd.prep(opts)
-  t.throws(() => steamcmd.updateApp(1007, 'bad_steamworks', opts))
-  t.throws(() => fs.statSync('bad_steamworks'))
+  t.throws(() => steamcmd.updateApp(1007, opts))
+  t.throws(() => fs.statSync(opts.appDir))
 })
 
 test('updateApp with a nonexistent app', async t => {
   var {opts} = t.context
   await steamcmd.prep(opts)
-  t.throws(steamcmd.updateApp(4, path.resolve('test_data', 'nonexistent_app'), opts))
+  t.throws(steamcmd.updateApp(4, opts))
 })
 
 test('updateApp with valid parameters', async t => {
   var {opts} = t.context
   await steamcmd.prep(opts)
-  t.true(await steamcmd.updateApp(1007, path.resolve('test_data', 'steamworks'), opts))
+  t.true(await steamcmd.updateApp(1007, opts))
 })
 
 test('updateApp with HLDS workaround', async t => {
   var {opts} = t.context
   await steamcmd.prep(opts)
-  t.true(await steamcmd.updateApp(90, path.resolve('test_data', 'hlds'), opts))
+  t.true(await steamcmd.updateApp(90, opts))
 })
 
 test('updateApp on already up-to-date app returns false', async t => {
-  var {binDirParent, opts} = t.context
+  var {opts} = t.context
   const appId = 1007
-  const installDir = path.join(binDirParent, 'app')
   await steamcmd.prep(opts)
-  await steamcmd.updateApp(appId, installDir, opts)
-  t.false(await steamcmd.updateApp(appId, installDir, opts))
+  await steamcmd.updateApp(appId, opts)
+  t.false(await steamcmd.updateApp(appId, opts))
 })

@@ -13,6 +13,7 @@ var _ = {}
 _.defaults = require('lodash.defaults')
 
 var defaultOptions = {
+  appDir: path.join(__dirname, 'steamcmd_bin'),
   asyncDelay: 3000,
   binDir: path.join(__dirname, 'steamcmd_bin'),
   retries: 3,
@@ -185,13 +186,13 @@ var getAppInfo = function (appID, opts) {
   return promiseToRetry(getAppInfoOnce, [appID, opts], opts)
 }
 
-var updateAppOnce = function (appId, installDir, opts) {
+var updateAppOnce = function (appId, opts) {
   opts = _.defaults(opts, defaultOptions)
-  if (!path.isAbsolute(installDir)) {
+  if (!path.isAbsolute(opts.appDir)) {
     // throw an error immediately because it's invalid data, not a failure
-    throw new TypeError('installDir must be an absolute path in updateApp')
+    throw new TypeError('opts.appDir must be an absolute path')
   }
-  var commands = ['@ShutdownOnFailedCommand 0', 'login anonymous', 'force_install_dir ' + installDir, 'app_update ' + appId]
+  var commands = ['@ShutdownOnFailedCommand 0', 'login anonymous', 'force_install_dir ' + opts.appDir, 'app_update ' + appId]
   return run(commands, opts)
     .then(function (proc) {
       if (proc.stdout.indexOf('Success! App \'' + appId + '\' fully installed') !== -1) {
@@ -206,8 +207,8 @@ var updateAppOnce = function (appId, installDir, opts) {
     })
 }
 
-var updateApp = function (appId, installDir, opts) {
-  return promiseToRetry(updateAppOnce, [appId, installDir, opts], opts)
+var updateApp = function (appId, opts) {
+  return promiseToRetry(updateAppOnce, [appId, opts], opts)
 }
 
 var prep = function (opts) {
